@@ -29,6 +29,99 @@ O objetivo e evitar comandos caros, verbosos ou permissivos demais quando uma ex
 - Evita escalar privilegio, rede ou raciocinio sem aprovacao do usuario.
 - Trata `high` como o nivel maximo de raciocinio permitido pela skill.
 
+## Instalacao passo a passo
+
+A skill deve ficar dentro da pasta de skills do Codex com este formato:
+
+```text
+~/.codex/skills/codex-cli-runner/
+|-- SKILL.md
+`-- agents/
+    `-- openai.yaml
+```
+
+Depois de instalar ou atualizar, reinicie o Codex para carregar a nova versao.
+
+### Windows PowerShell
+
+1. Feche o Codex, se ele estiver aberto.
+2. Defina o caminho do ZIP baixado:
+
+```powershell
+$zipPath = "C:\Users\SEU_USUARIO\Downloads\skill Almerindo Junior - atualizado.zip"
+```
+
+3. Defina a pasta de destino da skill:
+
+```powershell
+$dest = "$env:USERPROFILE\.codex\skills\codex-cli-runner"
+```
+
+4. Crie uma pasta temporaria e extraia o ZIP:
+
+```powershell
+$temp = Join-Path $env:TEMP "codex-cli-runner-install"
+Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
+Expand-Archive -LiteralPath $zipPath -DestinationPath $temp -Force
+```
+
+5. Crie a pasta de destino, caso ela ainda nao exista:
+
+```powershell
+New-Item -ItemType Directory -Path "$dest\agents" -Force | Out-Null
+```
+
+6. Copie os arquivos da skill para o destino:
+
+```powershell
+Copy-Item -LiteralPath "$temp\codex-cli-runner\SKILL.md" -Destination "$dest\SKILL.md" -Force
+Copy-Item -LiteralPath "$temp\codex-cli-runner\agents\openai.yaml" -Destination "$dest\agents\openai.yaml" -Force
+```
+
+7. Confirme que os arquivos foram instalados:
+
+```powershell
+Get-ChildItem -Recurse -LiteralPath $dest
+```
+
+8. Abra o Codex novamente.
+
+### macOS ou Linux
+
+1. Feche o Codex.
+2. Extraia o ZIP:
+
+```bash
+unzip "skill Almerindo Junior - atualizado.zip" -d /tmp/codex-cli-runner-install
+```
+
+3. Crie a pasta da skill:
+
+```bash
+mkdir -p "$HOME/.codex/skills/codex-cli-runner/agents"
+```
+
+4. Copie os arquivos:
+
+```bash
+cp /tmp/codex-cli-runner-install/codex-cli-runner/SKILL.md "$HOME/.codex/skills/codex-cli-runner/SKILL.md"
+cp /tmp/codex-cli-runner-install/codex-cli-runner/agents/openai.yaml "$HOME/.codex/skills/codex-cli-runner/agents/openai.yaml"
+```
+
+5. Confira a instalacao:
+
+```bash
+find "$HOME/.codex/skills/codex-cli-runner" -maxdepth 3 -type f
+```
+
+6. Abra o Codex novamente.
+
+### Atualizar uma versao antiga
+
+Para atualizar, repita o processo de copia usando `-Force` no PowerShell ou sobrescrevendo com `cp` no macOS/Linux. Isso substitui `SKILL.md` e `agents/openai.yaml` pela versao nova.
+
+Se a skill ja estiver carregada no Codex, a mudanca so sera aplicada depois de reiniciar o Codex.
+
 ## Quando usar
 
 Use esta skill quando precisar:
