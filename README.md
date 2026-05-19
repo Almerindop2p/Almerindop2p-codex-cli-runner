@@ -57,13 +57,7 @@ New-Item -ItemType Directory -Path "$env:USERPROFILE\.codex\skills" -Force | Out
 3. Clone o repositorio dentro da pasta de skills:
 
 ```powershell
-git clone URL_DO_REPOSITORIO "$env:USERPROFILE\.codex\skills\codex-cli-runner"
-```
-
-Substitua `URL_DO_REPOSITORIO` pela URL do repositorio no GitHub, por exemplo:
-
-```powershell
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git "$env:USERPROFILE\.codex\skills\codex-cli-runner"
+git clone https://github.com/Almerindop2p/Almerindop2p-codex-cli-runner.git "$env:USERPROFILE\.codex\skills\codex-cli-runner"
 ```
 
 4. Confirme que os arquivos foram instalados:
@@ -86,13 +80,7 @@ mkdir -p "$HOME/.codex/skills"
 3. Clone o repositorio dentro da pasta de skills:
 
 ```bash
-git clone URL_DO_REPOSITORIO "$HOME/.codex/skills/codex-cli-runner"
-```
-
-Substitua `URL_DO_REPOSITORIO` pela URL do repositorio no GitHub, por exemplo:
-
-```bash
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git "$HOME/.codex/skills/codex-cli-runner"
+git clone https://github.com/Almerindop2p/Almerindop2p-codex-cli-runner.git "$HOME/.codex/skills/codex-cli-runner"
 ```
 
 4. Confira a instalacao:
