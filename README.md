@@ -1,26 +1,33 @@
-<<<<<<< HEAD
-# codex-cli-runner
-=======
-# Codex CLI Runner
+# Almerindop2p Codex CLI Runner
 
 Skill para montar, executar, depurar e retomar comandos do Codex CLI com foco em baixo consumo de tokens, menor privilegio necessario e compatibilidade com as versoes atuais do Codex.
 
 ## O que esta skill faz
 
-A `codex-cli-runner` padroniza como chamar o `codex exec` em tarefas locais ou de analise. Ela ajuda a escolher modelo, nivel de raciocinio, sandbox, diretorio de trabalho, fluxo de retomada de sessoes e tratamento de `stderr`.
+A `codex-cli-runner` padroniza como chamar o `codex exec` em tarefas locais, analises de repositorio, revisoes, correcoes e retomadas de sessoes anteriores.
+
+Ela ajuda a escolher:
+
+- modelo adequado para custo e complexidade;
+- nivel de raciocinio necessario;
+- sandbox mais restrito possivel;
+- diretorio de trabalho com `-C`;
+- fluxo correto para `resume --last`;
+- tratamento de `stderr` para manter a saida limpa.
 
 O objetivo e evitar comandos caros, verbosos ou permissivos demais quando uma execucao menor e mais segura resolve o problema.
 
 ## Beneficios
 
-- Reduz consumo de tokens usando `model_verbosity=low`, `model_reasoning_summary=none` e esforco de raciocinio adequado a tarefa.
+- Reduz consumo de tokens usando `model_verbosity=low`, `model_reasoning_summary=none` e esforco de raciocinio proporcional a tarefa.
 - Usa o menor sandbox necessario: `read-only` para leitura, `workspace-write` para edicoes locais e `danger-full-access` apenas com permissao explicita.
-- Evita o uso de `--full-auto`, que foi marcado como depreciado, e recomenda flags explicitas.
+- Evita `--full-auto`, que esta depreciado, e recomenda sandboxes explicitos.
 - Facilita a retomada de sessoes com `codex exec resume --last`, preservando modelo, esforco e sandbox originais.
-- Melhora a compatibilidade entre instrucoes antigas e uso atual com modelos `gpt-5.5`, `gpt-5.4` e `gpt-5.4-mini`.
-- Mantem a saida limpa ocultando progresso em `stderr` por padrao com `2>/dev/null`.
-- Define uma ordem consistente para flags, reduzindo erros ao montar comandos longos.
-- Ajuda a escolher custo versus profundidade: comandos simples podem usar `gpt-5.4-mini`, enquanto tarefas complexas usam `gpt-5.5`.
+- Ajuda a migrar instrucoes antigas para um uso compativel com `gpt-5.5`, `gpt-5.4` e `gpt-5.4-mini`.
+- Mantem a saida mais limpa ocultando progresso em `stderr` por padrao com `2>/dev/null`.
+- Define uma ordem consistente para flags, reduzindo erro ao montar comandos longos.
+- Evita escalar privilegio, rede ou raciocinio sem aprovacao do usuario.
+- Trata `high` como o nivel maximo de raciocinio permitido pela skill.
 
 ## Quando usar
 
@@ -28,11 +35,12 @@ Use esta skill quando precisar:
 
 - montar um comando `codex exec`;
 - executar uma analise rapida de repositorio;
-- pedir uma revisao ou investigacao com baixo custo;
+- pedir revisao, investigacao ou resumo com baixo custo;
 - fazer uma correcao local com `workspace-write`;
 - continuar uma sessao anterior do Codex;
 - migrar comandos antigos que usavam `--full-auto`;
-- reduzir verbosidade e tokens em execucoes repetitivas.
+- reduzir verbosidade e tokens em execucoes repetitivas;
+- adaptar comandos ao modelo e a versao instalada do Codex CLI.
 
 ## Padroes recomendados
 
@@ -42,9 +50,22 @@ Use esta skill quando precisar:
 | Revisar ou analisar repositorio | `gpt-5.5` | `medium` | `read-only` |
 | Corrigir bug ou editar arquivos locais | `gpt-5.5` | `medium` | `workspace-write` |
 | Arquitetura, seguranca ou debugging profundo | `gpt-5.5` | `high` | menor necessario |
-| Acesso amplo a maquina ou rede | `gpt-5.5` | `high` | somente com permissao |
+| Acesso amplo a maquina ou rede | `gpt-5.5` | `high` | `danger-full-access` apenas com permissao |
+
+## Niveis de raciocinio
+
+A skill recomenda escolher o menor nivel suficiente:
+
+- `minimal`: formatacao, documentacao e pequenas inspecoes.
+- `low`: correcoes simples, pequenas revisoes e geracao de comandos.
+- `medium`: bugs comuns, edicoes de feature e refactors normais.
+- `high`: arquitetura, seguranca, performance, refactors amplos e qualquer tarefa que exigiria o nivel maximo.
+
+`high` e o teto recomendado. A skill nao recomenda escalar para um nivel acima disso.
 
 ## Exemplo de comando
+
+Para leitura rapida:
 
 ```bash
 codex exec --skip-git-repo-check -m gpt-5.4-mini -c model_reasoning_effort=low -c model_verbosity=low -c model_reasoning_summary=none --sandbox read-only "summarize this repository structure" 2>/dev/null
@@ -64,17 +85,19 @@ printf '%s\n' "PROMPT" | codex exec --skip-git-repo-check -m gpt-5.5 -c model_re
 
 ## Retomar uma sessao
 
-Quando o usuario pedir para continuar uma execucao anterior, a skill recomenda reaproveitar a sessao existente:
+Quando o usuario pedir para continuar uma execucao anterior, a skill recomenda reaproveitar a sessao existente e herdar modelo, raciocinio e sandbox originais:
 
 ```bash
 printf '%s\n' "FOLLOW_UP_PROMPT" | codex exec --skip-git-repo-check resume --last - 2>/dev/null
 ```
 
-Se o diretorio for relevante:
+Se o diretorio for relevante para encontrar a sessao anterior, coloque `-C DIR` antes de `resume`:
 
 ```bash
 printf '%s\n' "FOLLOW_UP_PROMPT" | codex exec --skip-git-repo-check -C DIR resume --last - 2>/dev/null
 ```
+
+Depois de uma execucao bem-sucedida, a skill recomenda lembrar o usuario de que a sessao pode ser retomada depois com `codex resume`.
 
 ## Tratamento de erros
 
@@ -82,24 +105,25 @@ Se `codex exec` falhar, a skill recomenda:
 
 1. Informar a falha de forma breve.
 2. Reexecutar sem `2>/dev/null` apenas quando o `stderr` for necessario para diagnostico.
-3. Nao aumentar sandbox, rede ou esforco de raciocinio sem aprovacao.
-4. Se o modelo for rejeitado, tentar a cadeia `gpt-5.5`, depois `gpt-5.4`, depois `gpt-5.4-mini`.
-5. Se a sintaxe falhar, verificar `codex --version` e adaptar o comando para a CLI instalada.
+3. Nao aumentar sandbox, rede ou nivel de raciocinio sem aprovacao.
+4. Lembrar que `high` e o nivel maximo permitido.
+5. Se o modelo for rejeitado, tentar `gpt-5.5`, depois `gpt-5.4`, depois `gpt-5.4-mini`.
+6. Se a sintaxe falhar, verificar `codex --version` e adaptar o comando para a CLI instalada.
 
 ## Estrutura da skill
 
 ```text
 .
 |-- SKILL.md
+|-- README.md
 `-- agents/
     `-- openai.yaml
 ```
 
-- `SKILL.md`: contem as regras principais de escolha de modelo, sandbox, esforco de raciocinio, retomada e formato de resposta.
+- `SKILL.md`: contem as regras principais de modelo, sandbox, raciocinio, retomada, tratamento de erro e formato de resposta.
 - `agents/openai.yaml`: define o nome exibido e a descricao curta da skill na interface.
+- `README.md`: documenta o uso e os beneficios da skill para o repositorio Git.
 
 ## Resultado esperado
 
-Com esta skill, execucoes do Codex CLI ficam mais previsiveis, economicas e seguras. Ela e especialmente util para quem roda tarefas frequentes no terminal e quer evitar comandos excessivamente permissivos, saidas longas ou escolhas de modelo acima do necessario.
->>>>>>> f36c8c7 (Atualiza arquivos do projeto)
-# Almerindop2p-codex-cli-runner
+Com esta skill, execucoes do Codex CLI ficam mais previsiveis, economicas e seguras. Ela e especialmente util para quem roda tarefas frequentes no terminal e quer evitar comandos permissivos demais, saidas longas ou escolhas de modelo acima do necessario.

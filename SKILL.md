@@ -19,8 +19,7 @@ Prefer the smallest adequate run:
    - `minimal`: formatting, docs, tiny inspections.
    - `low`: simple fixes, small reviews, command generation.
    - `medium`: normal bug fixes, feature edits, refactors.
-   - `high`: architecture, security, performance, broad refactors.
-   - `xhigh`: only for ultra-complex tasks or explicit user request; if unsupported, use `high`.
+   - `high`: architecture, security, performance, broad refactors, and any task that would otherwise require the maximum reasoning level.
 6. Add `-c model_verbosity=low` and `-c model_reasoning_summary=none` unless the user wants more explanation.
 7. Append `2>/dev/null` by default so progress on stderr is hidden and only the final stdout answer is shown.
 8. Do not use `--full-auto`; it is deprecated. Use explicit `--sandbox workspace-write` for edit runs.
@@ -82,7 +81,7 @@ If `codex exec` exits non-zero:
 
 1. Report the failure briefly.
 2. Re-run without `2>/dev/null` only when stderr is needed for debugging.
-3. Do not retry with broader sandbox, network, or higher reasoning without user approval.
+3. Do not retry with broader sandbox, network, or a higher reasoning level without user approval; `high` is the maximum allowed reasoning level.
 4. If the model is rejected, try the documented fallback chain: `gpt-5.5` → `gpt-5.4` → `gpt-5.4-mini`.
 5. If command syntax fails, check `codex --version` and adapt to the installed CLI version.
 
