@@ -1,0 +1,3 @@
+interface:
+  display_name: "Codex CLI Runner"
+  short_description: "Run and resume Codex CLI tasks with low-token defaults."
