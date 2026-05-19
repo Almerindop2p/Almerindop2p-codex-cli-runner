@@ -31,11 +31,14 @@ O objetivo e evitar comandos caros, verbosos ou permissivos demais quando uma ex
 
 ## Instalacao passo a passo
 
-A skill deve ficar dentro da pasta de skills do Codex com este formato:
+No GitHub, esta skill deve ser baixada como pasta do repositorio. O jeito mais simples e usar `git clone` diretamente dentro da pasta de skills do Codex.
+
+A estrutura final deve ficar assim:
 
 ```text
 ~/.codex/skills/codex-cli-runner/
 |-- SKILL.md
+|-- README.md
 `-- agents/
     `-- openai.yaml
 ```
@@ -45,80 +48,80 @@ Depois de instalar ou atualizar, reinicie o Codex para carregar a nova versao.
 ### Windows PowerShell
 
 1. Feche o Codex, se ele estiver aberto.
-2. Defina o caminho do ZIP baixado:
+2. Crie a pasta de skills, caso ela ainda nao exista:
 
 ```powershell
-$zipPath = "C:\Users\SEU_USUARIO\Downloads\skill Almerindo Junior - atualizado.zip"
+New-Item -ItemType Directory -Path "$env:USERPROFILE\.codex\skills" -Force | Out-Null
 ```
 
-3. Defina a pasta de destino da skill:
+3. Clone o repositorio dentro da pasta de skills:
 
 ```powershell
-$dest = "$env:USERPROFILE\.codex\skills\codex-cli-runner"
+git clone URL_DO_REPOSITORIO "$env:USERPROFILE\.codex\skills\codex-cli-runner"
 ```
 
-4. Crie uma pasta temporaria e extraia o ZIP:
+Substitua `URL_DO_REPOSITORIO` pela URL do repositorio no GitHub, por exemplo:
 
 ```powershell
-$temp = Join-Path $env:TEMP "codex-cli-runner-install"
-Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
-Expand-Archive -LiteralPath $zipPath -DestinationPath $temp -Force
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git "$env:USERPROFILE\.codex\skills\codex-cli-runner"
 ```
 
-5. Crie a pasta de destino, caso ela ainda nao exista:
+4. Confirme que os arquivos foram instalados:
 
 ```powershell
-New-Item -ItemType Directory -Path "$dest\agents" -Force | Out-Null
+Get-ChildItem -Recurse -LiteralPath "$env:USERPROFILE\.codex\skills\codex-cli-runner"
 ```
 
-6. Copie os arquivos da skill para o destino:
-
-```powershell
-Copy-Item -LiteralPath "$temp\codex-cli-runner\SKILL.md" -Destination "$dest\SKILL.md" -Force
-Copy-Item -LiteralPath "$temp\codex-cli-runner\agents\openai.yaml" -Destination "$dest\agents\openai.yaml" -Force
-```
-
-7. Confirme que os arquivos foram instalados:
-
-```powershell
-Get-ChildItem -Recurse -LiteralPath $dest
-```
-
-8. Abra o Codex novamente.
+5. Abra o Codex novamente.
 
 ### macOS ou Linux
 
 1. Feche o Codex.
-2. Extraia o ZIP:
+2. Crie a pasta de skills, caso ela ainda nao exista:
 
 ```bash
-unzip "skill Almerindo Junior - atualizado.zip" -d /tmp/codex-cli-runner-install
+mkdir -p "$HOME/.codex/skills"
 ```
 
-3. Crie a pasta da skill:
+3. Clone o repositorio dentro da pasta de skills:
 
 ```bash
-mkdir -p "$HOME/.codex/skills/codex-cli-runner/agents"
+git clone URL_DO_REPOSITORIO "$HOME/.codex/skills/codex-cli-runner"
 ```
 
-4. Copie os arquivos:
+Substitua `URL_DO_REPOSITORIO` pela URL do repositorio no GitHub, por exemplo:
 
 ```bash
-cp /tmp/codex-cli-runner-install/codex-cli-runner/SKILL.md "$HOME/.codex/skills/codex-cli-runner/SKILL.md"
-cp /tmp/codex-cli-runner-install/codex-cli-runner/agents/openai.yaml "$HOME/.codex/skills/codex-cli-runner/agents/openai.yaml"
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git "$HOME/.codex/skills/codex-cli-runner"
 ```
 
-5. Confira a instalacao:
+4. Confira a instalacao:
 
 ```bash
 find "$HOME/.codex/skills/codex-cli-runner" -maxdepth 3 -type f
 ```
 
-6. Abra o Codex novamente.
+5. Abra o Codex novamente.
 
 ### Atualizar uma versao antiga
 
-Para atualizar, repita o processo de copia usando `-Force` no PowerShell ou sobrescrevendo com `cp` no macOS/Linux. Isso substitui `SKILL.md` e `agents/openai.yaml` pela versao nova.
+Se a skill ja foi instalada com `git clone`, entre na pasta e rode `git pull`.
+
+Windows PowerShell:
+
+```powershell
+cd "$env:USERPROFILE\.codex\skills\codex-cli-runner"
+git pull
+```
+
+macOS ou Linux:
+
+```bash
+cd "$HOME/.codex/skills/codex-cli-runner"
+git pull
+```
+
+Se a versao antiga foi instalada manualmente, remova ou renomeie a pasta antiga `codex-cli-runner` e depois rode o `git clone` novamente.
 
 Se a skill ja estiver carregada no Codex, a mudanca so sera aplicada depois de reiniciar o Codex.
 
