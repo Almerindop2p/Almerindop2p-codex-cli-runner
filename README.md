@@ -6,7 +6,7 @@ Skill para montar, executar, depurar e retomar comandos do Codex CLI com foco em
 
 A `codex-cli-runner` padroniza como chamar o `codex exec` em tarefas locais, analises de repositorio, revisoes, correcoes e retomadas de sessoes anteriores.
 
-Ela ajuda a escolher:
+Ela ajuda a escolher:  
 
 - modelo adequado para custo e complexidade;
 - nivel de raciocinio necessario;
